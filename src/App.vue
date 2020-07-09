@@ -3,40 +3,70 @@
     <div class="title">
       <strong>alphabet</strong><span class="thin">incremental</span><small> beta v{{ version }}</small>
     </div>
-    <ul class="options">
-      <li class="reset" @click="reset">! Reset game</li>
-    </ul>
-    <div class="stats">
-      <p>Available dots: <strong>{{ formatDots(dots) }}</strong></p>
-    </div>
-    <ul>
+
+    <Nav></Nav>
+
+    <DotButton v-if="hasUpgrade('dotbutton')"></DotButton>
+
+    <SectionAchievements v-if="section === 'achievements'"></SectionAchievements>
+
+    <ul v-if="section === 'alphabet'">
+
+      <div class="stats">
+        <p>Available dots: <strong>{{ formatDots(dots) }}</strong></p>
+        <p>Dots per second (dps): <strong>{{ formatDots(getDotsPerSecond()) }}/s</strong></p>
+        <p>Playtime: <strong>{{ timeFormat(Date.now() - startPlayingTime) }}</strong></p>
+      </div>
+
       <Letter v-for="(letter, index) in alphabet" :key="index" :index="index" :letter="letter"></Letter>
     </ul>
+
+    <SectionUpgrades v-if="section === 'upgrades'"></SectionUpgrades>
+
+    <SectionOptions v-if="section === 'options'"
+      v-on:hardReset="hardReset"
+    ></SectionOptions>
+
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import Letter from './components/Letter.vue'
+import DotButton from './components/DotButton.vue'
+import SectionUpgrades from './components/SectionUpgrades.vue'
+import SectionAchievements from './components/SectionAchievements.vue'
+import SectionOptions from './components/SectionOptions.vue'
+import Nav from './components/Nav.vue'
 import mixin from './mixins'
 
 export default {
   name: 'App',
   mixins: [ mixin ],
-  components: { Letter },
+  components: { Letter, Nav, DotButton, SectionUpgrades, SectionAchievements, SectionOptions },
   computed: {
     ...mapState([
       'alphabet',
       'achievements',
+      'section',
+      'upgrades',
       'dots',
       'version',
-      'storageKey'
-    ])
+      'storageKey',
+      'allLettersMultiplier',
+      'dotButtonMultiplier',
+      'startPlayingTime',
+      'higherDots'
+    ]),
+    upgradesNotOwned(){
+      return this.upgrades.filter(u => !u.owned)
+    }
   },
   data(){
     return {
       timer: null,
-      timerStartTick: null
+      timerStartTick: null,
+      showing: 'alphabet'
     }
   },
   methods: {
@@ -47,12 +77,7 @@ export default {
     },
     tick(){
       const delta = Date.now() - this.timerStartTick
-      let inc = 0
-      inc = this.alphabet.reduce((ac, l) => {
-        if(!l.qty) return ac
-        ac += l.inc * l.qty
-        return ac
-      }, inc)
+      let inc = this.getDotsPerSecond()
       inc = inc * delta / 1000
       this.$store.commit('incDots', inc)
       this.timerStartTick = Date.now()
@@ -62,7 +87,7 @@ export default {
       for(let id in this.achievements){
         if(!this.achievements[id].done && this.achievements[id].check.bind(this)()){
           this.achievements[id].done = true
-          alert('oleeeeeeeeee, logro: ' + this.achievements[id].title)
+          // alert('Achievement unlocked: ' + this.achievements[id].title)
         }
       }
     },
@@ -70,7 +95,7 @@ export default {
       clearInterval(this.timer)
       this.timerStartTick = null
     },
-    reset(){
+    hardReset(){
       this.stopTimer()
       localStorage.removeItem(this.storageKey)
       location.reload()
@@ -84,7 +109,7 @@ export default {
 
 <style>
   #app {
-    width: 800px;
+    width: 900px;
     margin: 0 auto;
     overflow: hidden;
   }
@@ -93,7 +118,7 @@ export default {
     text-align: center;
   }
   .title strong {
-    color: yellowgreen;
+    color: royalblue;
   }
   .title .thin {
     font-size: 100;
@@ -104,7 +129,17 @@ export default {
   }
   .stats {
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1em;
+    padding: 10px;
+  }
+  .stats > p {
+    margin: -1px;
+    margin-bottom: 20px;
+    padding: 5px 10px;
+    float: left;
+    width: 30%;
+    border: 1px solid black;
+    background-color: #D9F1FF;
   }
   .options {
     margin-top: 10px;
