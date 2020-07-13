@@ -73,18 +73,18 @@ const upgrades = [
 	},
 ]
 
-for(let i = 1000; i <= 1000000; i+=10000){
+for(let i = 1000; i <= 1000000; i+=100000){
 	upgrades.push({
-		'id': 'dotbuttonx2i' + (i / 10000),
+		'id': 'dotbuttonx2i' + (i / 100000),
 		'title': 'Manual dots x2',
 		'cost': i,
 		'near': i / 2,
 		'effect': twiceManualDots
 	})
 }
-for(let i = 2000; i <= 2000000; i+=20000){
+for(let i = 2000; i <= 2000000; i+=200000){
 	upgrades.push({
-		'id': '+5%i' + (i / 20000),
+		'id': '+5%i' + (i / 200000),
 		'title': 'All letters increment +5%',
 		'cost': i,
 		'near': i / 2,
