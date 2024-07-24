@@ -10,10 +10,16 @@ const twiceManualDots = function(){
 
 const upgrades = [
 	{
+		'id': 'dotbutton',
+		'title': 'Button for manual dots',
+		'cost': 150,
+		'near': 20
+	},
+	{
 		'id': '+2%i',
 		'title': 'All letters increment +2%',
 		'cost': 500,
-		'near': 2,
+		'near': 250,
 		'effect': allLettersPercent(2)
 	},
 	{
@@ -22,12 +28,6 @@ const upgrades = [
 		'cost': 1000,
 		'near': 400,
 		'effect': allLettersPercent(2)
-	},
-	{
-		'id': 'dotbutton',
-		'title': 'Button for manual dots',
-		'cost': 2000,
-		'near': 500
 	},
 	{
 		'id': 'dotbuttonx2',
